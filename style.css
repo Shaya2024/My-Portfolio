@@ -244,6 +244,11 @@
   }
 
   #contact input::placeholder,
+#contact textarea::placeholder {
+  color: #b3b3b3; 
+}
+
+  #contact input::placeholder,
   #contact textarea::placeholder {
     color: #b3b3b3; /* Light gray placeholder text */
 }
