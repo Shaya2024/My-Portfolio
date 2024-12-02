@@ -135,7 +135,7 @@
   #projects h2 {
     font-size: 2rem;
     margin-bottom: 1rem;
-    color: var(--light-text);
+    color: var(--primary-color);
   }
   
   .project-grid {
