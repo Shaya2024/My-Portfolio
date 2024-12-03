@@ -108,6 +108,7 @@ const questions = [
   // DOM Elements
   const quizContainer = document.getElementById("quiz");
   const tryAgainBtn = document.getElementById("retry")
+  const message = document.getElementById("message")
   
   // Function to load a question
   function loadQuestion() {
@@ -131,9 +132,9 @@ const questions = [
       const selectedAnswer = parseInt(e.target.getAttribute("data-index"));
       if (selectedAnswer === questions[currentQuestion].correct) {
         score++;
-        alert("Correct!");
+        message.innerHTML = `<h2>Correct!</h2>`;
       } else {
-        alert("Wrong!");
+        message.innerHTML = `<h2>Wrong!</h2>`;
         
       }
       currentQuestion++;
