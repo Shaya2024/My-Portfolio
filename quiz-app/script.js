@@ -107,7 +107,6 @@ const questions = [
   
   // DOM Elements
   const quizContainer = document.getElementById("quiz");
-  const nextBtn = document.getElementById("next-btn");
   
   // Function to load a question
   function loadQuestion() {
@@ -136,23 +135,16 @@ const questions = [
         alert("Wrong!");
         
       }
-      nextBtn.disabled = false;
-    }
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        quizContainer.innerHTML = `<h2>You scored ${score}/${questions.length}!</h2>`;
+      }    }
   });
   
-  // Function to go to the next question
-  nextBtn.addEventListener("click", () => {
-    currentQuestion++;
-    if (currentQuestion < questions.length) {
-      loadQuestion();
-      nextBtn.disabled = true;
-    } else {
-      quizContainer.innerHTML = `<h2>You scored ${score}/${questions.length}!</h2>`;
-      nextBtn.style.display = "none";
-    }
-  });
+
   
   // Initialize the quiz
   loadQuestion();
-  nextBtn.disabled = true;
   
