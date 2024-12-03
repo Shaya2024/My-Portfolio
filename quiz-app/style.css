@@ -35,7 +35,7 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    width: 150px;
+    width: 450px;
     margin: 5px auto
   }
   
@@ -46,3 +46,6 @@ body {
     list-style-type: none;
   }
   
+  #retry {
+    display: none;
+  }
