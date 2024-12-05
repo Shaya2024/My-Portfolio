@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/My-Portfolio/todo-app/static/css/main.c3c2db4a.css",
+    "main.js": "/My-Portfolio/todo-app/static/js/main.5f93b91a.js",
+    "index.html": "/My-Portfolio/todo-app/index.html",
+    "main.c3c2db4a.css.map": "/My-Portfolio/todo-app/static/css/main.c3c2db4a.css.map",
+    "main.5f93b91a.js.map": "/My-Portfolio/todo-app/static/js/main.5f93b91a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c3c2db4a.css",
+    "static/js/main.5f93b91a.js"
+  ]
+}
