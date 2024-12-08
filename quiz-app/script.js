@@ -1,114 +1,64 @@
-const questions = [
-    {
-      question: "What is the result of typeof NaN in JavaScript?",
-      answers: [
-        "'number'",
-        "'NaN'",
-        "'undefined'",
-        "'object'"
-      ],
-      correct: 0
-    },
-    {
-      question: "Which of these is NOT a valid JavaScript variable name?",
-      answers: [
-        "_variable",
-        "$123",
-        "123variable",
-        "variable123"
-      ],
-      correct: 2
-    },
-    {
-      question: "What is the difference between == and === in JavaScript?",
-      answers: [
-        "== checks both value and type, === checks only value",
-        "== checks only value, === checks both value and type",
-        "== performs deep comparison, === performs shallow comparison",
-        "== and === are equivalent"
-      ],
-      correct: 1
-    },
-    {
-      question: "What is the output of the following code?\nconsole.log([1, 2, 3] + [4, 5, 6]);",
-      answers: [
-        "[1, 2, 3, 4, 5, 6]",
-        "123456",
-        "NaN",
-        "Error"
-      ],
-      correct: 1
-    },
-    {
-      question: "Which of these is NOT a primitive type in JavaScript?",
-      answers: [
-        "Symbol",
-        "String",
-        "Object",
-        "Number"
-      ],
-      correct: 2
-    },
-    {
-      question: "What is the purpose of the this keyword in JavaScript?",
-      answers: [
-        "It refers to the current scope",
-        "It refers to the global object",
-        "It refers to the object that owns the function being executed",
-        "It refers to the parent object"
-      ],
-      correct: 2
-    },
-    {
-      question: "What does Object.freeze() do?",
-      answers: [
-        "Prevents the addition of new properties",
-        "Prevents modification of existing properties",
-        "Prevents deletion of properties",
-        "All of the above"
-      ],
-      correct: 3
-    },
-    {
-      question: "What will console.log(0.1 + 0.2 === 0.3) print?",
-      answers: [
-        "true",
-        "false",
-        "NaN",
-        "undefined"
-      ],
-      correct: 1
-    },
-    {
-      question: "How does JavaScript handle asynchronous code execution?",
-      answers: [
-        "Using threads",
-        "Using an event loop",
-        "Using parallel processing",
-        "Using synchronous blocking"
-      ],
-      correct: 1
-    },
-    {
-      question: "What is the difference between let and var?",
-      answers: [
-        "let is block-scoped, var is function-scoped",
-        "let allows redeclaration, var does not",
-        "var is block-scoped, let is function-scoped",
-        "There is no difference"
-      ],
-      correct: 0
-    }
-  ];
-  
+ // DOM Elements
+ const topicSelection = document.getElementById("topic-selection");
+ const quizContainer = document.getElementById("quiz");
+ const tryAgainBtn = document.getElementById("retry")
+ const message = document.getElementById("message")
+
+// Intital display
+quizContainer.style.display = "none"; 
+
+
   // App state
   let currentQuestion = 0;
   let score = 0;
-  
-  // DOM Elements
-  const quizContainer = document.getElementById("quiz");
-  const tryAgainBtn = document.getElementById("retry")
-  const message = document.getElementById("message")
+
+// Topics 
+const topicToCategory = {
+  Computers: 18, // Example category for "Science: Computers"
+  Sports: 21, // Example category for "Mathematics"
+  History: 23, // Example category for "History"
+};
+
+
+
+
+ function selectTopic(topic) {
+  console.log(`Selected Topic: ${topic}`); // For debugging
+  topicSelection.style.display = "none"; // Hide the topic selection
+  quizContainer.style.display = "block"; // Show the quiz container
+   fetchQuestions(topic)
+   
+}
+
+
+document.querySelectorAll(".topic-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    const selectedTopic = e.target.getAttribute("data-topic");
+    selectTopic(selectedTopic);
+  });
+});
+
+
+
+async function fetchQuestions(topic) {
+  const category = topicToCategory[topic];
+  console.log(`fetched number ${topicToCategory[topic]}`)
+  const response = await fetch(
+    `https://opentdb.com/api.php?amount=10&category=${category}&type=multiple`
+  );
+  const data = await response.json();
+  questions = data.results.map((item) => ({
+    question: item.question,
+    answers: [...item.incorrect_answers, item.correct_answer].sort(() => Math.random() - 0.5),
+    correct: [...item.incorrect_answers, item.correct_answer].findIndex(
+      (answer) => answer === item.correct_answer
+    ),
+  }));
+ loadQuestion()
+}
+
+
+
   
   // Function to load a question
   function loadQuestion() {
@@ -123,6 +73,7 @@ const questions = [
           )
           .join("")}
       </ul>`
+      updateProgressBar(); 
     ;
   }
   
@@ -145,6 +96,17 @@ const questions = [
         tryAgainBtn.style.display = "block";
       }    }
   });
+
+
+  // Progress Bar
+function updateProgressBar() {
+  const progressBar = document.querySelector(".progress-bar");
+  const progress = ((currentQuestion + 1) / questions.length) * 100; // Calculate percentage
+  progressBar.style.width = `${progress}%`; // Update width
+}
+
+
+// End of Quiz - Try again
   
   function reset() {
     currentQuestion = 0;
@@ -155,6 +117,5 @@ const questions = [
   }
 
   tryAgainBtn.addEventListener("click", reset)
-  
-  // Initialize the quiz
-  loadQuestion();
+
+

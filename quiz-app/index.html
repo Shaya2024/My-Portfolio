@@ -7,13 +7,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="quiz-container">
+  <div id="topic-selection">
+    <h2>Select a Topic</h2>
+    <button class="topic-btn" data-topic="Computers">Computers</button>
+    <button class="topic-btn" data-topic="Sports">Sports</button>
+    <button class="topic-btn" data-topic="History">History</button>
+  </div>
+  <div  id="quiz" class="quiz-container">
     <h1>Quiz App</h1>
-    <div id="quiz">
+    <div>
       <!-- Quiz questions will be dynamically inserted here -->
     </div>
     <button id="retry">Try Again</button>
     <p id="message"></p>
+    <div class="progress-bar-container">
+      <div class="progress-bar"></div>
+    </div>
   </div>
   
   <script src="script.js"></script>
