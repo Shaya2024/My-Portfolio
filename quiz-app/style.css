@@ -1,11 +1,15 @@
 /* General Styles */
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f9;
+  background-image: url("Assets/question_marks_background.jpg"); 
+  background-size: 100%; /* Ensures the entire image fits within the container */
+  background-repeat: no-repeat; /* Prevents repeating the image */
+  background-position: center; 
   color: #1a1f36;
   text-align: center;
   margin: 0;
   padding: 0;
+  height: 100vh;
 }
 
 button {
@@ -33,11 +37,17 @@ ul {
 /* Topic Selection */
 #topic-selection {
   display: flex;
+  width: 90%;
+  max-width: 600px;
+  margin: 50px auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
   background-color: #f4f4f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
 }
 
 .topic-btn {
@@ -51,7 +61,7 @@ ul {
   width: 90%;
   max-width: 600px;
   margin: 50px auto;
-  background: #ffffff;
+  background-color: #f4f4f9;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -121,4 +131,11 @@ h1 {
 /* Score Container */
 .score-container {
   display: none;
+  width: 90%;
+  max-width: 600px;
+  margin: 50px auto;
+  background-color: #f4f4f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
