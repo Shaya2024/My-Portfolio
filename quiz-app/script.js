@@ -112,11 +112,13 @@ async function fetchQuestions(topic) {
         e.target.classList.remove("wrong");
 
       currentQuestion++;
-      if (currentQuestion < 2) {
+      if (currentQuestion < questions.length) {
         loadQuestion();
       } else {
-        scoreDisplay.innerText = 
-        `You scored ${score}/${questions.length}!`;
+        scoreDisplay.innerHTML = 
+        `<h2>Quiz Completed!</h2>
+    <p>Your Score: ${score}/${questions.length}</p>
+    <p>Percentage: ${(score / questions.length) * 100}%</p>`;
         scoreContainer.style.display = "block";
         quizContainer.style.display = "none"
       }  
