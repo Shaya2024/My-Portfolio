@@ -1,119 +1,76 @@
-const questions = [
-    {
-      question: "What is the result of typeof NaN in JavaScript?",
-      answers: [
-        "'number'",
-        "'NaN'",
-        "'undefined'",
-        "'object'"
-      ],
-      correct: 0
-    },
-    {
-      question: "Which of these is NOT a valid JavaScript variable name?",
-      answers: [
-        "_variable",
-        "$123",
-        "123variable",
-        "variable123"
-      ],
-      correct: 2
-    },
-    {
-      question: "What is the difference between == and === in JavaScript?",
-      answers: [
-        "== checks both value and type, === checks only value",
-        "== checks only value, === checks both value and type",
-        "== performs deep comparison, === performs shallow comparison",
-        "== and === are equivalent"
-      ],
-      correct: 1
-    },
-    {
-      question: "What is the output of the following code?\nconsole.log([1, 2, 3] + [4, 5, 6]);",
-      answers: [
-        "[1, 2, 3, 4, 5, 6]",
-        "123456",
-        "NaN",
-        "Error"
-      ],
-      correct: 1
-    },
-    {
-      question: "Which of these is NOT a primitive type in JavaScript?",
-      answers: [
-        "Symbol",
-        "String",
-        "Object",
-        "Number"
-      ],
-      correct: 2
-    },
-    {
-      question: "What is the purpose of the this keyword in JavaScript?",
-      answers: [
-        "It refers to the current scope",
-        "It refers to the global object",
-        "It refers to the object that owns the function being executed",
-        "It refers to the parent object"
-      ],
-      correct: 2
-    },
-    {
-      question: "What does Object.freeze() do?",
-      answers: [
-        "Prevents the addition of new properties",
-        "Prevents modification of existing properties",
-        "Prevents deletion of properties",
-        "All of the above"
-      ],
-      correct: 3
-    },
-    {
-      question: "What will console.log(0.1 + 0.2 === 0.3) print?",
-      answers: [
-        "true",
-        "false",
-        "NaN",
-        "undefined"
-      ],
-      correct: 1
-    },
-    {
-      question: "How does JavaScript handle asynchronous code execution?",
-      answers: [
-        "Using threads",
-        "Using an event loop",
-        "Using parallel processing",
-        "Using synchronous blocking"
-      ],
-      correct: 1
-    },
-    {
-      question: "What is the difference between let and var?",
-      answers: [
-        "let is block-scoped, var is function-scoped",
-        "let allows redeclaration, var does not",
-        "var is block-scoped, let is function-scoped",
-        "There is no difference"
-      ],
-      correct: 0
-    }
-  ];
-  
+
+
+ // DOM Elements
+ const topicSelection = document.getElementById("topic-selection");
+ const quizContainer = document.querySelector(".quiz-container");
+ const quizContent = document.getElementById("quiz")
+ const tryAgainBtn = document.getElementById("retry")
+ const message = document.getElementById("message")
+ const progressBar = document.querySelector(".progress-bar");
+ const scoreContainer = document.querySelector(".score-container");
+ const scoreDisplay = document.getElementById("score-display")
+
+// Intital display
+quizContainer.style.display = "none"; 
+
+
   // App state
   let currentQuestion = 0;
   let score = 0;
-  
-  // DOM Elements
-  const quizContainer = document.getElementById("quiz");
-  const tryAgainBtn = document.getElementById("retry")
-  const message = document.getElementById("message")
+
+// Topics 
+const topicToCategory = {
+  Computers: 18, // Example category for "Science: Computers"
+  Sports: 21, // Example category for "Mathematics"
+  History: 23, // Example category for "History"
+};
+
+
+
+
+ async function selectTopic(topic) {
+  await fetchQuestions(topic);
+  topicSelection.style.display = "none"; // Hide the topic selection
+  quizContainer.style.display = "block"; // Show the quiz container
+
+   
+}
+
+
+document.querySelectorAll(".topic-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    const selectedTopic = e.target.getAttribute("data-topic");
+    selectTopic(selectedTopic);
+  });
+});
+
+
+
+async function fetchQuestions(topic) {
+  const category = topicToCategory[topic];
+  console.log(`fetched number ${topicToCategory[topic]}`)
+  const response = await fetch(
+    `https://opentdb.com/api.php?amount=10&category=${category}&type=multiple`
+  );
+  const data = await response.json();
+  questions = data.results.map((item) => ({
+    question: item.question,
+    answers: [...item.incorrect_answers, item.correct_answer].sort(() => Math.random() - 0.5),
+    correct: [...item.incorrect_answers, item.correct_answer].findIndex(
+      (answer) => answer === item.correct_answer
+    ),
+  }));
+ loadQuestion();
+ quizContainer.style.display = "block"
+}
+
+
+
   
   // Function to load a question
   function loadQuestion() {
     const questionData = questions[currentQuestion];
-    quizContainer.innerHTML = `
+    quizContent.innerHTML = `
       <h2>${questionData.question}</h2>
       <ul>
         ${questionData.answers
@@ -123,38 +80,126 @@ const questions = [
           )
           .join("")}
       </ul>`
+      updateProgressBar();
+      toggleAnswerButtons(false);
+      clearInterval(timer);
+      startTimer(); 
     ;
   }
   
   // Function to handle answer selection
   quizContainer.addEventListener("click", (e) => {
     if (e.target.classList.contains("answer-btn")) {
+      toggleAnswerButtons(true);
+      clearInterval(timer);
       const selectedAnswer = parseInt(e.target.getAttribute("data-index"));
       if (selectedAnswer === questions[currentQuestion].correct) {
         score++;
         message.innerHTML = `<h2>Correct!</h2>`;
+        e.target.classList.add("correct");
       } else {
         message.innerHTML = `<h2>Wrong!</h2>`;
-        
+        e.target.classList.add("wrong");
       }
+      document.getElementById("current-score").textContent = `${score}/${questions.length}`;
+        message.classList.add("message-fade-out"); // Add fade-out animation
+  
+        // Wait for the fade-out animation to complete before clearing the message
+        setTimeout(() => {
+          message.innerHTML = ""; // Clear the message text
+          message.classList.remove("message-fade-out");
+          e.target.classList.remove("correct");
+        e.target.classList.remove("wrong");
+
       currentQuestion++;
       if (currentQuestion < questions.length) {
         loadQuestion();
       } else {
-        quizContainer.innerHTML = `<h2>You scored ${score}/${questions.length}!</h2>`;
-        tryAgainBtn.style.display = "block";
-      }    }
-  });
+        scoreDisplay.innerHTML = 
+        `<h2>Quiz Completed!</h2>
+    <p>Your Score: ${score}/${questions.length}</p>
+    <p>Percentage: ${(score / questions.length) * 100}%</p>`;
+        scoreContainer.style.display = "block";
+        quizContainer.style.display = "none"
+      }  
+        }, 1000); // This matches the CSS animation duration
+       // Slight delay before starting the fade-out
+
+
+  }});
+
+
+  function toggleAnswerButtons(disabled) {
+    const answerButtons = document.querySelectorAll(".answer-btn");
+    answerButtons.forEach((button) => {
+      button.disabled = disabled; // Disable or enable buttons
+    });
+  }
+
+
+  // Progress Bar
+function updateProgressBar() {
+  
+  const progress = ((currentQuestion + 1) / questions.length) * 100; // Calculate percentage
+  progressBar.style.width = `${progress}%`; // Update width
+}
+
+
+// End of Quiz - Try again
   
   function reset() {
     currentQuestion = 0;
     score = 0;
-    loadQuestion();
-    tryAgainBtn.style.display = "none";
-
+    quizContainer.style.display = "none";
+    scoreContainer.style.display = "none";
+    topicSelection.style.display = "flex"; 
   }
 
   tryAgainBtn.addEventListener("click", reset)
+
+
+
+let timer;
+const timeLimit = 15;
+
+function startTimer(){
+  let timeLeft = timeLimit;
+  document.getElementById("time-left").textContent = timeLeft;
+
+  timer = setInterval(()=> {
+    timeLeft--;
+    document.getElementById("time-left").textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      handleTimeOut()
+    }
+  },1000)
+
   
-  // Initialize the quiz
+}
+  
+
+function handleTimeOut(){
+  message.innerHTML = `<h2>Time's up!</h2>`;
+  message.classList.add("message-fade-out"); // Add fade-out animation
+  
+  // Wait for the fade-out animation to complete before clearing the message
+  setTimeout(() => {
+    message.innerHTML = ""; // Clear the message text
+    message.classList.remove("message-fade-out");
+    document.querySelector(".correct")?.classList.remove("correct");
+    document.querySelector(".wrong")?.classList.remove("wrong");
+
+currentQuestion++;
+if (currentQuestion < questions.length) {
   loadQuestion();
+} else {
+  scoreDisplay.innerText = 
+        `You scored ${score}/${questions.length}!`;
+        scoreContainer.style.display = "block";
+        quizContainer.style.display = "none"
+}  
+  }, 1000);
+
+
+}
