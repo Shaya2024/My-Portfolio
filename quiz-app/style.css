@@ -115,11 +115,13 @@ h2 {
 
 #timer, #score-tracker {
   font-size: 18px;
-  margin: 10px 0;
 }
 
 #timer {
   color: #ff4d4d;
+  border: 1px dotted #ff4d4d;
+  width: 200px;
+  margin: 20px auto;
 }
 
 .correct {
@@ -142,6 +144,10 @@ h2 {
 
 .message-fade-out {
   animation: fadeOut 1s ease-out;
+}
+
+#message {
+  height: 30px;
 }
 
 @keyframes fadeOut {
