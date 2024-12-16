@@ -9,6 +9,9 @@
  const progressBar = document.querySelector(".progress-bar");
  const scoreContainer = document.querySelector(".score-container");
  const scoreDisplay = document.getElementById("score-display")
+ const topicButton = document.getElementById("topic-button"); /*new*/
+
+
 
 // Intital display
 quizContainer.style.display = "none"; 
@@ -17,6 +20,7 @@ quizContainer.style.display = "none";
   // App state
   let currentQuestion = 0;
   let score = 0;
+  let questions = [];
 
 // Topics 
 const topicToCategory = {
@@ -25,8 +29,23 @@ const topicToCategory = {
   History: 23, // Example category for "History"
 };
 
+topicButton.addEventListener('click', () => {
+  console.log("you clicked the right button!")
+  const selectedTopic = document.getElementById("topic-input").value;
+  selectTopic(selectedTopic)
+} );
+
+async function selectTopic(topic) {
+  await fetchQuestions(topic);
+  topicSelection.style.display = "none"; // Hide the topic selection
+  quizContainer.style.display = "block"; // Show the quiz container
+
+   
+}
 
 
+
+/*
 
  async function selectTopic(topic) {
   await fetchQuestions(topic);
@@ -37,33 +56,90 @@ const topicToCategory = {
 }
 
 
-document.querySelectorAll(".topic-btn").forEach((btn) => {
+
+ document.querySelectorAll(".topic-btn").forEach((btn) => {
   btn.addEventListener("click", (e) => {
     const selectedTopic = e.target.getAttribute("data-topic");
     selectTopic(selectedTopic);
   });
 });
 
+*/
+/*
 
-
-async function fetchQuestions(topic) {
-  const category = topicToCategory[topic];
-  console.log(`fetched number ${topicToCategory[topic]}`)
-  const response = await fetch(
-    `https://opentdb.com/api.php?amount=10&category=${category}&type=multiple`
-  );
-  const data = await response.json();
-  questions = data.results.map((item) => ({
-    question: item.question,
-    answers: [...item.incorrect_answers, item.correct_answer].sort(() => Math.random() - 0.5),
-    correct: [...item.incorrect_answers, item.correct_answer].findIndex(
-      (answer) => answer === item.correct_answer
-    ),
-  }));
- loadQuestion();
- quizContainer.style.display = "block"
+-----------
+function handleButtonClick(){
+  const topicInput = document.getElementById("topic-input").value;
+  selectTopic(topicInput)
 }
 
+
+const topicInput = document.getElementById("topic-input")
+
+topicButton.addEventListener("click", selectTopic(topic))
+--------------------
+*/
+
+async function fetchQuestions(topic) {
+  const messages = [
+    {
+      role: "system",
+      content: "You are a helpful assistant.",
+    },
+    {
+      role: "user",
+      content: `
+        Create 10 multiple-choice questions about ${topic}. Each question should include:
+        - A "question" string
+        - An "answers" array with 4 options (including 1 correct answer)
+        - A "correct" key indicating the index of the correct answer.
+        Format your response as JSON like this:
+        [
+          {
+            "question": "What is JavaScript?",
+            "answers": ["A programming language", "A database", "An operating system", "A text editor"],
+            "correct": 0
+          },
+          ...
+        ]
+      `,
+    },
+  ];
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer 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`, // Replace with your OpenAI API key
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo", // Correct model
+        messages: messages, // Use messages array
+        max_tokens: 1000,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    questions = JSON.parse(data.choices[0].message.content.trim()).map((item) => ({
+      question: item.question,
+      answers: item.answers,
+      correct: item.correct,
+    }));
+
+    // Call `loadQuestion` and update `quizContainer` visibility here
+    loadQuestion();
+    quizContainer.style.display = "block"; // Show the quiz container
+  } catch (error) {
+    console.error("Error fetching AI questions:", error);
+    alert("Unable to generate questions. Please try again.");
+  }
+}
 
 
   
@@ -136,30 +212,9 @@ async function fetchQuestions(topic) {
     });
   }
 
+//15 sec Timer
 
-  // Progress Bar
-function updateProgressBar() {
-  
-  const progress = ((currentQuestion + 1) / questions.length) * 100; // Calculate percentage
-  progressBar.style.width = `${progress}%`; // Update width
-}
-
-
-// End of Quiz - Try again
-  
-  function reset() {
-    currentQuestion = 0;
-    score = 0;
-    quizContainer.style.display = "none";
-    scoreContainer.style.display = "none";
-    topicSelection.style.display = "flex"; 
-  }
-
-  tryAgainBtn.addEventListener("click", reset)
-
-
-
-let timer;
+  let timer;
 const timeLimit = 15;
 
 function startTimer(){
@@ -203,3 +258,27 @@ if (currentQuestion < questions.length) {
 
 
 }
+
+
+  // Progress Bar
+function updateProgressBar() {
+  
+  const progress = ((currentQuestion + 1) / questions.length) * 100; // Calculate percentage
+  progressBar.style.width = `${progress}%`; // Update width
+}
+
+
+// End of Quiz - Try again
+  
+  function reset() {
+    currentQuestion = 0;
+    score = 0;
+    quizContainer.style.display = "none";
+    scoreContainer.style.display = "none";
+    topicSelection.style.display = "flex"; 
+  }
+
+  tryAgainBtn.addEventListener("click", reset)
+
+
+
