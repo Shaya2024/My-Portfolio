@@ -12,6 +12,10 @@
  const topicButton = document.getElementById("topic-button"); /*new*/
 
 
+ require('dotenv').config();
+
+
+
 
 // Intital display
 quizContainer.style.display = "none"; 
@@ -111,7 +115,7 @@ async function fetchQuestions(topic) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer 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`, // Replace with your OpenAI API key
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`, // Replace with your OpenAI API key
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo", // Correct model
