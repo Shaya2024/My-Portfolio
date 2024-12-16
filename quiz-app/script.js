@@ -12,8 +12,7 @@
  const topicButton = document.getElementById("topic-button"); /*new*/
 
 
- require('dotenv').config();
-
+const apiKey = "REPLACE WITH API KEY"
 
 
 
@@ -26,12 +25,6 @@ quizContainer.style.display = "none";
   let score = 0;
   let questions = [];
 
-// Topics 
-const topicToCategory = {
-  Computers: 18, // Example category for "Science: Computers"
-  Sports: 21, // Example category for "Mathematics"
-  History: 23, // Example category for "History"
-};
 
 topicButton.addEventListener('click', () => {
   console.log("you clicked the right button!")
@@ -48,42 +41,6 @@ async function selectTopic(topic) {
 }
 
 
-
-/*
-
- async function selectTopic(topic) {
-  await fetchQuestions(topic);
-  topicSelection.style.display = "none"; // Hide the topic selection
-  quizContainer.style.display = "block"; // Show the quiz container
-
-   
-}
-
-
-
- document.querySelectorAll(".topic-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    const selectedTopic = e.target.getAttribute("data-topic");
-    selectTopic(selectedTopic);
-  });
-});
-
-*/
-/*
-
------------
-function handleButtonClick(){
-  const topicInput = document.getElementById("topic-input").value;
-  selectTopic(topicInput)
-}
-
-
-const topicInput = document.getElementById("topic-input")
-
-topicButton.addEventListener("click", selectTopic(topic))
---------------------
-*/
-
 async function fetchQuestions(topic) {
   const messages = [
     {
@@ -95,7 +52,7 @@ async function fetchQuestions(topic) {
       content: `
         Create 10 multiple-choice questions about ${topic}. Each question should include:
         - A "question" string
-        - An "answers" array with 4 options (including 1 correct answer)
+        - An "answers" array with 4 options in (including 1 correct answer). The position of the correct answer in the array should change from question to question.
         - A "correct" key indicating the index of the correct answer.
         Format your response as JSON like this:
         [
@@ -115,11 +72,11 @@ async function fetchQuestions(topic) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`, // Replace with your OpenAI API key
+        "Authorization": `Bearer ${apiKey}`, // Replace with your OpenAI API key
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo", // Correct model
-        messages: messages, // Use messages array
+        model: "gpt-3.5-turbo",
+        messages: messages,
         max_tokens: 1000,
         temperature: 0.7,
       }),
@@ -130,20 +87,36 @@ async function fetchQuestions(topic) {
     }
 
     const data = await response.json();
-    questions = JSON.parse(data.choices[0].message.content.trim()).map((item) => ({
+    console.log("Raw API response:", data.choices[0].message.content);
+
+    // Clean the response by removing backticks and unnecessary formatting
+    const cleanContent = data.choices[0].message.content
+      .replace(/```json|```/g, "") // Remove code block indicators
+      .trim();
+
+    // Parse the cleaned JSON response
+    const parsedQuestions = JSON.parse(cleanContent);
+
+    // Validate the structure
+    if (!Array.isArray(parsedQuestions)) {
+      throw new Error("Invalid JSON format: Expected an array of questions.");
+    }
+
+    // Map the questions
+    questions = parsedQuestions.map((item) => ({
       question: item.question,
       answers: item.answers,
       correct: item.correct,
     }));
 
-    // Call `loadQuestion` and update `quizContainer` visibility here
-    loadQuestion();
+    loadQuestion(); // Load the first question
     quizContainer.style.display = "block"; // Show the quiz container
   } catch (error) {
-    console.error("Error fetching AI questions:", error);
+    console.error("Error fetching or parsing questions:", error);
     alert("Unable to generate questions. Please try again.");
   }
 }
+
 
 
   

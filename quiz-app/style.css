@@ -2,8 +2,8 @@
 body {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
-  font-style: normal;  background-image: url("Assets/question_marks_background.jpg"); 
-  background-size: 100%; /* Ensures the entire image fits within the container */
+  background-image: url("Assets/question_marks_background.jpg"); 
+  background-size: cover; /* Ensures the entire image fits within the container */
   background-repeat: no-repeat; /* Prevents repeating the image */
   background-position: center; 
   background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
@@ -12,7 +12,10 @@ body {
   margin: 0;
   padding: 0;
   height: 100vh;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content:center;
+  align-items:center;
 }
 
 .background {
@@ -35,7 +38,8 @@ button {
   font-size: 16px;
   margin: 5px auto;
   transition: background 0.3s;
-  width: 450px;
+  width: 100%;
+  max-width: 450px;
 }
 
 
@@ -53,7 +57,7 @@ ul {
   display: flex;
   width: 90%;
   max-width: 600px;
-  margin: 50px auto;
+  margin: 20px auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -61,13 +65,14 @@ ul {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  
-
 }
 
-.topic-btn {
-  margin: 10px;
-  width: 450px; 
+#topic-selection input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 16px;
 }
 
 /* Quiz Container */
@@ -75,7 +80,7 @@ ul {
   display: none;
   width: 90%;
   max-width: 600px;
-  margin: 50px auto;
+  margin: 20px auto;
   background-color: #f4f4f9;
   padding: 20px;
   border-radius: 8px;
@@ -132,6 +137,26 @@ h2 {
   animation: wrongAnimation 1s ease-out;
 }
 
+.message-fade-out {
+  animation: fadeOut 1s ease-out;
+}
+
+#message {
+  height: 30px;
+}
+
+/* Score Container */
+.score-container {
+  display: none;
+  width: 90%;
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #f4f4f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 @keyframes correctAnimation {
   0%, 100% { background-color: #00ff00; }
   50% { background-color: #00cc00; transform: scale(1.05); }
@@ -142,27 +167,50 @@ h2 {
   50% { background-color: #cc0000; transform: translateX(-10px); }
 }
 
-.message-fade-out {
-  animation: fadeOut 1s ease-out;
-}
-
-#message {
-  height: 30px;
-}
 
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
 }
 
-/* Score Container */
-.score-container {
-  display: none;
-  width: 90%;
-  max-width: 600px;
-  margin: 50px auto;
-  background-color: #f4f4f9;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  button {
+    font-size: 14px;
+    padding: 8px 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  #timer, #score-tracker {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  #topic-selection, .quiz-container, .score-container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  button {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  #topic-selection input {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
