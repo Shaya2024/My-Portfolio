@@ -4,7 +4,7 @@
  const topicSelection = document.getElementById("topic-selection");
  const quizContainer = document.querySelector(".quiz-container");
  const quizContent = document.getElementById("quiz")
- const tryAgainBtn = document.getElementById("retry")
+ const tryAgainBtn = document.getElementById("retry") 
  const message = document.getElementById("message")
  const progressBar = document.querySelector(".progress-bar");
  const scoreContainer = document.querySelector(".score-container");
@@ -12,7 +12,7 @@
  const topicButton = document.getElementById("topic-button"); /*new*/
 
 
-const apiKey = "REPLACE WITH API KEY"
+/* const apiKey = "***REMOVED***" */
 
 
 
@@ -42,44 +42,15 @@ async function selectTopic(topic) {
 
 
 async function fetchQuestions(topic) {
-  const messages = [
-    {
-      role: "system",
-      content: "You are a helpful assistant.",
-    },
-    {
-      role: "user",
-      content: `
-        Create 10 multiple-choice questions about ${topic}. Each question should include:
-        - A "question" string
-        - An "answers" array with 4 options in (including 1 correct answer). The position of the correct answer in the array should change from question to question.
-        - A "correct" key indicating the index of the correct answer.
-        Format your response as JSON like this:
-        [
-          {
-            "question": "What is JavaScript?",
-            "answers": ["A programming language", "A database", "An operating system", "A text editor"],
-            "correct": 0
-          },
-          ...
-        ]
-      `,
-    },
-  ];
-
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Send a POST request to your Netlify backend function
+    const response = await fetch("https://quiz-app-shaya2024.netlify.app/.netlify/functions/fetch-questions", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`, // Replace with your OpenAI API key
       },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: messages,
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
+      body: JSON.stringify({ topic }), // Pass the topic to the backend
     });
 
     if (!response.ok) {
@@ -87,22 +58,15 @@ async function fetchQuestions(topic) {
     }
 
     const data = await response.json();
-    console.log("Raw API response:", data.choices[0].message.content);
+    console.log("Raw API response from Netlify backend:", data);
 
-    // Clean the response by removing backticks and unnecessary formatting
-    const cleanContent = data.choices[0].message.content
-      .replace(/```json|```/g, "") // Remove code block indicators
-      .trim();
-
-    // Parse the cleaned JSON response
-    const parsedQuestions = JSON.parse(cleanContent);
-
-    // Validate the structure
+    // Parse and use the fetched questions (assume backend returns clean JSON directly)
+    const parsedQuestions = data.questions; // Update this based on how your backend returns data
     if (!Array.isArray(parsedQuestions)) {
-      throw new Error("Invalid JSON format: Expected an array of questions.");
+      throw new Error("Invalid response: Expected an array of questions.");
     }
 
-    // Map the questions
+    // Map the questions into your app's format
     questions = parsedQuestions.map((item) => ({
       question: item.question,
       answers: item.answers,
@@ -112,7 +76,7 @@ async function fetchQuestions(topic) {
     loadQuestion(); // Load the first question
     quizContainer.style.display = "block"; // Show the quiz container
   } catch (error) {
-    console.error("Error fetching or parsing questions:", error);
+    console.error("Error fetching questions from the backend:", error);
     alert("Unable to generate questions. Please try again.");
   }
 }
