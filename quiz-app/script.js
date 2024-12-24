@@ -12,8 +12,6 @@
  const topicButton = document.getElementById("topic-button"); /*new*/
 
 
-/* const apiKey = "***REMOVED***" */
-
 
 
 // Intital display
