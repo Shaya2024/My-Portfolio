@@ -4,7 +4,7 @@
  const topicSelection = document.getElementById("topic-selection");
  const quizContainer = document.querySelector(".quiz-container");
  const quizContent = document.getElementById("quiz")
- const tryAgainBtn = document.getElementById("retry")
+ const tryAgainBtn = document.getElementById("retry") 
  const message = document.getElementById("message")
  const progressBar = document.querySelector(".progress-bar");
  const scoreContainer = document.querySelector(".score-container");
@@ -12,8 +12,7 @@
  const topicButton = document.getElementById("topic-button"); /*new*/
 
 
- require('dotenv').config();
-
+/* const apiKey = "***REMOVED***" */
 
 
 
@@ -26,12 +25,6 @@ quizContainer.style.display = "none";
   let score = 0;
   let questions = [];
 
-// Topics 
-const topicToCategory = {
-  Computers: 18, // Example category for "Science: Computers"
-  Sports: 21, // Example category for "Mathematics"
-  History: 23, // Example category for "History"
-};
 
 topicButton.addEventListener('click', () => {
   console.log("you clicked the right button!")
@@ -48,81 +41,16 @@ async function selectTopic(topic) {
 }
 
 
-
-/*
-
- async function selectTopic(topic) {
-  await fetchQuestions(topic);
-  topicSelection.style.display = "none"; // Hide the topic selection
-  quizContainer.style.display = "block"; // Show the quiz container
-
-   
-}
-
-
-
- document.querySelectorAll(".topic-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    const selectedTopic = e.target.getAttribute("data-topic");
-    selectTopic(selectedTopic);
-  });
-});
-
-*/
-/*
-
------------
-function handleButtonClick(){
-  const topicInput = document.getElementById("topic-input").value;
-  selectTopic(topicInput)
-}
-
-
-const topicInput = document.getElementById("topic-input")
-
-topicButton.addEventListener("click", selectTopic(topic))
---------------------
-*/
-
 async function fetchQuestions(topic) {
-  const messages = [
-    {
-      role: "system",
-      content: "You are a helpful assistant.",
-    },
-    {
-      role: "user",
-      content: `
-        Create 10 multiple-choice questions about ${topic}. Each question should include:
-        - A "question" string
-        - An "answers" array with 4 options (including 1 correct answer)
-        - A "correct" key indicating the index of the correct answer.
-        Format your response as JSON like this:
-        [
-          {
-            "question": "What is JavaScript?",
-            "answers": ["A programming language", "A database", "An operating system", "A text editor"],
-            "correct": 0
-          },
-          ...
-        ]
-      `,
-    },
-  ];
-
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Send a POST request to your Netlify backend function
+    const response = await fetch("https://quiz-app-shaya2024.netlify.app/.netlify/functions/fetch-questions", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`, // Replace with your OpenAI API key
       },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo", // Correct model
-        messages: messages, // Use messages array
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
+      body: JSON.stringify({ topic }), // Pass the topic to the backend
     });
 
     if (!response.ok) {
@@ -130,20 +58,29 @@ async function fetchQuestions(topic) {
     }
 
     const data = await response.json();
-    questions = JSON.parse(data.choices[0].message.content.trim()).map((item) => ({
+    console.log("Raw API response from Netlify backend:", data);
+
+    // Parse and use the fetched questions (assume backend returns clean JSON directly)
+    const parsedQuestions = data.questions; // Update this based on how your backend returns data
+    if (!Array.isArray(parsedQuestions)) {
+      throw new Error("Invalid response: Expected an array of questions.");
+    }
+
+    // Map the questions into your app's format
+    questions = parsedQuestions.map((item) => ({
       question: item.question,
       answers: item.answers,
       correct: item.correct,
     }));
 
-    // Call `loadQuestion` and update `quizContainer` visibility here
-    loadQuestion();
+    loadQuestion(); // Load the first question
     quizContainer.style.display = "block"; // Show the quiz container
   } catch (error) {
-    console.error("Error fetching AI questions:", error);
+    console.error("Error fetching questions from the backend:", error);
     alert("Unable to generate questions. Please try again.");
   }
 }
+
 
 
   
