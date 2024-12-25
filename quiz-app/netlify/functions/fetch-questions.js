@@ -26,7 +26,7 @@ exports.handler = async (event) => {
         content: `
           Create 10 multiple-choice questions about ${topic}. Each question should include:
           - A "question" string
-          - An "answers" array with 4 options (including 1 correct answer). The position of the correct answer in the array should vary.
+          - An "answers" array with 4 options (including 1 correct answer). The position of the correct answer in the array should vary from one question to the next.
           - A "correct" key indicating the index of the correct answer.
           Format your response as JSON like this:
           [
