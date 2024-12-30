@@ -15,29 +15,15 @@ exports.handler = async (event) => {
   try {
     const { topic } = JSON.parse(event.body);
 
-    const apiKey = process.env.OPENAI_API_KEY; // Securely access the API key
+    const apiKey = process.env.OPENAI_API_KEY;
     const messages = [
       {
         role: "system",
-        content: "You are a helpful assistant.",
+        content: "You are a helpful assistant that creates quiz questions. Always respond with valid JSON arrays containing questions.",
       },
       {
         role: "user",
-        content: `
-          Create 10 multiple-choice questions about ${topic}. Each question should include:
-          - A "question" string
-          - An "answers" array with 4 options (including 1 correct answer). The position of the correct answer in the array should vary from one question to the next.
-          - A "correct" key indicating the index of the correct answer.
-          Format your response as JSON like this:
-          [
-            {
-              "question": "What is JavaScript?",
-              "answers": ["A programming language", "A database", "An operating system", "A text editor"],
-              "correct": 0
-            },
-            ...
-          ]
-        `,
+        content: `Generate 10 multiple-choice questions about ${topic}. Return ONLY a JSON array with no additional text or formatting. Each object in the array should have exactly this format: {"question": "string", "answers": ["string", "string", "string", "string"], "correct": number}`,
       },
     ];
 
@@ -50,16 +36,37 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: messages,
-        max_tokens: 1000,
+        max_tokens: 2000,
         temperature: 0.7,
       }),
     });
 
     const data = await response.json();
+    
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error("Invalid response from OpenAI API");
+    }
 
-    // Ensure `questions` is parsed correctly
-    const rawQuestions = data.choices[0].message.content;
-    const parsedQuestions = JSON.parse(rawQuestions);
+    // Add error handling for JSON parsing
+    let parsedQuestions;
+    try {
+      parsedQuestions = JSON.parse(data.choices[0].message.content.trim());
+      
+      // Validate the structure of the parsed questions
+      if (!Array.isArray(parsedQuestions)) {
+        throw new Error("Response is not an array");
+      }
+
+      // Validate each question object
+      parsedQuestions.forEach((q, index) => {
+        if (!q.question || !Array.isArray(q.answers) || q.answers.length !== 4 || typeof q.correct !== 'number') {
+          throw new Error(`Invalid question format at index ${index}`);
+        }
+      });
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError, "Raw content:", data.choices[0].message.content);
+      throw new Error("Failed to parse questions from API response");
+    }
 
     return {
       statusCode: 200,
@@ -68,10 +75,10 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
-      body: JSON.stringify({ questions: parsedQuestions }), // Send an array directly
+      body: JSON.stringify({ questions: parsedQuestions }),
     };
   } catch (error) {
-    console.error(error);
+    console.error("Error details:", error);
     return {
       statusCode: 500,
       headers: {
@@ -79,7 +86,10 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
-      body: JSON.stringify({ error: "Failed to fetch questions" }),
+      body: JSON.stringify({ 
+        error: "Failed to fetch questions",
+        details: error.message 
+      }),
     };
   }
 };
