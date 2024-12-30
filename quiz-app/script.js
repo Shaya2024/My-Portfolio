@@ -222,6 +222,8 @@ function updateProgressBar() {
   function reset() {
     currentQuestion = 0;
     score = 0;
+    topicInput.value = "";
+    loadingIndicator.style.display = "none";
     quizContainer.style.display = "none";
     scoreContainer.style.display = "none";
     topicSelection.style.display = "flex"; 

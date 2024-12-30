@@ -216,6 +216,7 @@ h2 {
 }
 
 #loading-indicator {
+  display: none;
   font-size: 18px;
   color: #007BFF;
   text-align: center;
