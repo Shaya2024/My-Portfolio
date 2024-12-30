@@ -2,6 +2,7 @@
 
  // DOM Elements
  const topicSelection = document.getElementById("topic-selection");
+ const topicInput = document.getElementById("topic-input");
  const quizContainer = document.querySelector(".quiz-container");
  const quizContent = document.getElementById("quiz")
  const tryAgainBtn = document.getElementById("retry") 
@@ -29,6 +30,13 @@ topicButton.addEventListener('click', () => {
   const selectedTopic = document.getElementById("topic-input").value;
   selectTopic(selectedTopic)
 } );
+
+topicInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    const selectedTopic = topicInput.value;
+    selectTopic(selectedTopic);
+  }
+});
 
 async function selectTopic(topic) {
   await fetchQuestions(topic);
