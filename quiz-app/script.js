@@ -40,6 +40,8 @@ async function selectTopic(topic) {
 
 
 async function fetchQuestions(topic) {
+  const loadingIndicator = document.getElementById("loading-indicator");
+  loadingIndicator.style.display = "block"; // Show the loading indicator
   try {
     // Send a POST request to your Netlify backend function
     const response = await fetch("https://quiz-app-shaya2024.netlify.app/.netlify/functions/fetch-questions", {

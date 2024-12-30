@@ -214,3 +214,10 @@ h2 {
     padding: 8px;
   }
 }
+
+#loading-indicator {
+  font-size: 18px;
+  color: #007BFF;
+  text-align: center;
+  margin-top: 20px;
+}
